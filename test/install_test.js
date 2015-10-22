@@ -1,18 +1,20 @@
 /* jshint camelcase: false, strict: false */
 /* global describe, beforeEach, it */
 
-var chai = require('chai'),
-    should = chai.should(),
-    util = require('util'),
-    gutil = require('gulp-util'),
-    path = require('path'),
-    commandRunner = require('../lib/commandRunner'),
-    install = require('../.'),
-    args = process.argv.slice();
+var chai = require('chai');
+var util = require("util");
+var gUtil = require("gulp-util");
+var path = require("path");
+
+var commandRunner = require("../lib/commandRunner");
+var install = require("../.");
+
+var should = chai.should();
+var args = process.argv.slice();
 
 function fixture (file) {
   var filepath = path.join(__dirname, file);
-  return new gutil.File({
+  return new gUtil.File({
     path: filepath,
     cwd: __dirname,
     base: path.join(__dirname, path.dirname(file)),

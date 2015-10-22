@@ -1,33 +1,36 @@
 'use strict';
-var through2 = require('through2'),
-  gutil = require('gulp-util'),
-  path = require('path'),
-  commandRunner = require('./lib/commandRunner'),
-  cmdMap = {
-    'tsd.json': {
-      cmd: 'tsd',
-      args: ['reinstall', '--save']
-    },
-    'bower.json': {
-      cmd: 'bower',
-      args: ['install', '--config.interactive=false']
-    },
-    'package.json': {
-      cmd: 'npm',
-      args: ['install']
-    },
-    'requirements.txt': {
-      cmd: 'pip',
-      args: ['install', '-r', 'requirements.txt']
-    }
-  };
+
+var gutil = require('gulp-util');
+var path = require("path");
+var Promise = require("promise");
+var through2 = require('through2');
+
+var commandRunner = require('./lib/commandRunner');
+
+var cmdMap = {
+  'tsd.json': {
+    cmd: 'tsd',
+    args: ['reinstall', '--save']
+  },
+  'bower.json': {
+    cmd: 'bower',
+    args: ['install', '--config.interactive=false']
+  },
+  'package.json': {
+    cmd: 'npm',
+    args: ['install']
+  },
+  'requirements.txt': {
+    cmd: 'pip',
+    args: ['install', '-r', 'requirements.txt']
+  }
+};
 
 module.exports = exports = function install(opts) {
-  var toRun = [],
-    count = 0;
+  var toRun = [];
 
-  return through2({
-      objectMode: true
+  return through2({ 
+    objectMode: true 
     },
     function(file, enc, cb) {
       if (!file.path) {
@@ -57,6 +60,7 @@ module.exports = exports = function install(opts) {
         cmd.cwd = path.dirname(file.path);
         toRun.push(cmd);
       }
+      
       this.push(file);
       cb();
     },
@@ -68,24 +72,27 @@ module.exports = exports = function install(opts) {
         log('Skipping install.', 'Run `' + gutil.colors.yellow(formatCommands(toRun)) + '` manually');
         return cb();
       } else {
-        toRun.forEach(function(command) {
-          commandRunner.run(command, function(err) {
-            if (err) {
-              log(err.message, ', run `' + gutil.colors.yellow(formatCommand(command)) + '` manually');
-              return cb(err);
+        var i = 0;
+        var maxI = toRun.length;
+          
+        return new Promise(function(fulfill, reject) {
+          var next = function(err) {
+            if(err) {
+              reject(err);
             }
-            done(cb, toRun.length);
-          });
+            else if(i < maxI) {
+              var command = toRun[i++];
+              commandRunner.run(command, next);
+            }
+            else {
+              fulfill();
+            }
+          }
+          
+          next();
         });
       }
-    }
-  );
-
-  function done(cb, length) {
-    if (++count === length) {
-      cb();
-    }
-  }
+  });
 };
 
 function log() {

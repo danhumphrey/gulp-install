@@ -24,6 +24,7 @@
   "homepage": "https://github.com/slushjs/gulp-install",
   "dependencies": {
     "gulp-util": "^3.0.4",
+    "promise": "^7.0.4",
     "through2": "^2.0.0",
     "which": "^1.0.9"
   },
