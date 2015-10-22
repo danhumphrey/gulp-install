@@ -21,10 +21,21 @@ function fixture (file) {
     contents: null
   });
 }
+function mockRunner () {
+  var mock = function mock (cmd, cb) {
+    mock.called += 1;
+    mock.commands.push(cmd);
+    cb();
+  };
+  mock.called = 0;
+  mock.commands = [];
+  return mock;
+}
 
 var originalRun;
 
 describe('gulp-install', function () {
+  this.timeout(5000);
   beforeEach(function () {
     originalRun = commandRunner.run;
     commandRunner.run = mockRunner();
@@ -63,7 +74,7 @@ describe('gulp-install', function () {
   it('should run `npm install --production` if stream contains `package.json` and `production` option is set', function (done) {
     var file = fixture('package.json');
 
-    var stream = install({production:true});
+    var stream = install({ production: true });
 
     stream.on('error', function(err) {
       should.exist(err);
@@ -496,14 +507,3 @@ describe('gulp-install', function () {
     stream.end();
   });
 });
-
-function mockRunner () {
-  var mock = function mock (cmd, cb) {
-    mock.called += 1;
-    mock.commands.push(cmd);
-    cb();
-  };
-  mock.called = 0;
-  mock.commands = [];
-  return mock;
-}
