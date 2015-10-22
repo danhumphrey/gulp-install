@@ -154,6 +154,35 @@ gulp.src(__dirname + '/templates/**')
     ));  
 ```
 
+## Callback
+
+An optional method can be passed as an argument and it will be called when package installation is completed.
+
+**Example with options:**
+
+```javascript
+var install = require("gulp-install");
+var path =  require("path");
+
+var callback = function() {
+  console.log("Package installation is complete.");
+}
+
+gulp.src(path.join(__dirname, "package.json").pipe(install({ production = true }, callback));
+```
+
+**Example without options:**
+
+```javascript
+var install = require("gulp-install");
+var path = require("path");
+
+var callback = function() {
+  console.log("Package installation is complete."); 
+}
+
+gulp.src(path.join(__dirname, "package.json").pipe(install(callback));
+```
 
 ## License
 
