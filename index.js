@@ -95,6 +95,8 @@ module.exports = exports = function install() {
   
   var commands = [];
   var captureCommands = function(file, enc, cb) { 
+    var self = this;
+
      if (!file.path) {
       return cb();
     }
@@ -123,10 +125,12 @@ module.exports = exports = function install() {
       commands.push(command);
     }
     
-    this.push(file);
-    cb();
+    runCommands(function() {
+      self.push(file);
+      cb();
+    });
   }
-  var runCommands = function() {
+  var runCommands = function(cb) {
     if (!commands.length) {
       return;
     }
@@ -150,11 +154,12 @@ module.exports = exports = function install() {
           if(callback) {
             callback();
           }
+          cb();
         }
       }
       next();
     }
   };
   
-  return through2.obj(captureCommands).on("finish", runCommands);
+  return through2.obj(captureCommands);
 };
